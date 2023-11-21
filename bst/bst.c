@@ -28,10 +28,12 @@ static ssize_t bst_insertleaf(bsst_t subtree, T value);
 static ssize_t bst_insertsubtree(bsst_t subtree, T value);
 static bnode_t* bst_maxsubtree(bsst_t subtree);
 static ssize_t bst_delsubtree(bsst_t subtree, T value);
+static bnode_t* bst_findsubtree(bsst_t subtree, T value);
 
 ssize_t bst_insert(bst_t* tree, T value);
 ssize_t bst_del(bst_t* tree, T value);
 
+bnode_t* bst_find(bst_t* tree, T value);
 
 /* - Implementation - */
 
@@ -240,6 +242,43 @@ ssize_t bst_del(bst_t* tree, T value)
     return ok;
 }
 
+static bnode_t* bst_findsubtree(bsst_t subtree, T value)
+{
+    // Did not found it
+    if (*subtree == NULL) {
+        return NULL;
+    }
+
+    if (value > (*subtree)->value) {
+        return bst_findsubtree(&((*subtree)->right), value);
+    }
+
+    if (value < (*subtree)->value) {
+        return bst_findsubtree(&((*subtree)->left), value);
+    }
+
+    // Found it
+    return *subtree;
+}
+
+bnode_t* bst_find(bst_t* tree, T value)
+{
+    if (tree->root == NULL) {
+        return NULL;
+    }
+
+    if (value > tree->root->value) {
+        return bst_findsubtree(&(tree->root->right), value);
+    }
+
+    if (value < tree->root->value) {
+        return bst_findsubtree(&(tree->root->left), value);
+    }
+
+    return tree->root;
+}
+
+
 /* - Test - */
 
 
@@ -247,52 +286,54 @@ int main(void)
 {
     bst_t bst = { 0 };
 
+#define VALUES_SIZE 15
+    T values[VALUES_SIZE]
+        = { 20, 10, 5, 2, 7, 15, 13, 17, 30, 25, 23, 28, 35, 33, 38 };
+
     /* Insertion */
-    bst_insert(&bst, 20);
-        bst_insert(&bst, 10);
-            bst_insert(&bst, 5);
-                bst_insert(&bst, 2);
-                bst_insert(&bst, 7);
-            bst_insert(&bst, 15);
-                bst_insert(&bst, 13);
-                bst_insert(&bst, 17);
-        bst_insert(&bst, 30);
-            bst_insert(&bst, 25);
-                bst_insert(&bst, 23);
-                bst_insert(&bst, 28);
-            bst_insert(&bst, 35);
-                bst_insert(&bst, 33);
-                bst_insert(&bst, 38);
+    for (size_t i = 0; i < VALUES_SIZE; i++) {
+        bst_insert(&bst, values[i]);
+    }
 
 
+#if 0
     /* Test printf */
     printf("After insertion:\n");
     printf("bst.root->value: %d\n", bst.root->value);
     printf("bst.root->left->value: %d\n", bst.root->left->value);
     printf("bst.root->right->value: %d\n", bst.root->right->value);
     printf("size: %zu\n", bst.length);
+#endif
 
+
+    /* Test find */
+    bnode_t* foundval = NULL;
+
+    for (size_t i = 0; i < VALUES_SIZE; i++) {
+        if ((foundval = bst_find(&bst, values[i]))) {
+            if (values[i] == foundval->value) {
+                printf("%02zu: finding %2d -> found %2d, (OK)\n", i, values[i], foundval->value);
+            }
+        } else {
+            printf("Not found!\n");
+        }
+    }
+
+    if (!(foundval = bst_find(&bst, 0))) {
+        printf("Not found!\n");
+    }
+
+
+#if 1
     /* Deletion */
-    bst_del(&bst, 20);
-        bst_del(&bst, 10);
-            bst_del(&bst, 5);
-                bst_del(&bst, 2);
-                bst_del(&bst, 7);
-            bst_del(&bst, 15);
-                bst_del(&bst, 13);
-                bst_del(&bst, 17);
-        bst_del(&bst, 30);
-            bst_del(&bst, 25);
-                bst_del(&bst, 23);
-                bst_del(&bst, 28);
-            bst_del(&bst, 35);
-                bst_del(&bst, 33);
-                bst_del(&bst, 38);
-
+    for (size_t i = 0; i < VALUES_SIZE; i++) {
+        bst_del(&bst, values[i]);
+    }
 
     // printf("%d\n", bst.root->value);
     printf("\nAfter deletion:\n");
     printf("size: %zu\n", bst.length);
+#endif
 
     return 0;
 }
