@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/types.h> // ssize_t
 
+#define TEST_MIN_MAX_HEIGHT
 
 /* - API - */
 
@@ -64,6 +65,11 @@ static ssize_t bst_delsubtree(bsst_t* subtree, T value);
 /// @return pointer to node or NULL if not found
 static bnode_t* bst_findsubtree(bsst_t* subtree, T value);
 
+/// @brief find height of subtree.
+/// @param subtree address of subtree
+/// @return height of subtree, 0 if *subtree is NULL
+static ssize_t bst_findsubtreeheight(bsst_t* subtree);
+
 /// @brief insert a node into tree.
 /// @param tree address of tree
 /// @param value value of node
@@ -81,6 +87,21 @@ ssize_t bst_del(bst_t* tree, T value);
 /// @param value query value
 /// @return pointer to node or NULL if not found
 bnode_t* bst_find(bst_t* tree, T value);
+
+/// @brief find minimum node in tree.
+/// @param tree address of tree
+/// @return pointer to minimum node, NULL if tree is empty
+bnode_t* bst_findmin(bst_t* tree);
+
+/// @brief find maximum node in tree
+/// @param tree address of tree
+/// @return pointer to maximum node, NULL if tree is empty
+bnode_t* bst_findmax(bst_t* tree);
+
+/// @brief find the height of tree.
+/// @param tree addreess of tree
+/// @return height of tree, -1 if tree is empty
+ssize_t bst_findheight(bst_t* tree);
 
 
 /* - Implementation - */
@@ -267,6 +288,68 @@ bnode_t* bst_find(bst_t* tree, T value)
     return tree->root;
 }
 
+bnode_t* bst_findmin(bst_t* tree)
+{
+    bnode_t* root = tree->root;
+
+    while (root) {
+        if (root->left == NULL) {
+            return root;
+        }
+
+        root = root->left;
+    }
+
+    return root;
+}
+
+bnode_t* bst_findmax(bst_t* tree)
+{
+    bnode_t* root = tree->root;
+
+    while (root) {
+        if (root->right == NULL) {
+            return root;
+        }
+
+        root = root->right;
+    }
+
+    return root;
+}
+
+static ssize_t bst_findsubtreeheight(bsst_t* subtree)
+{
+    if (*subtree == NULL) {
+        return 0;
+    }
+
+    ssize_t left_height = 1;
+    ssize_t right_height = 1;
+
+    left_height += bst_findsubtreeheight(&(*subtree)->left);
+    right_height += bst_findsubtreeheight(&(*subtree)->right);
+
+    return (left_height > right_height) ? left_height : right_height;
+}
+
+ssize_t bst_findheight(bst_t* tree)
+{
+    bnode_t* root = tree->root;
+
+    if (root == NULL) {
+        return -1;
+    }
+
+    ssize_t left_height = 1;
+    ssize_t right_height = 1;
+
+    left_height += bst_findsubtreeheight(&root->left);
+    right_height += bst_findsubtreeheight(&root->right);
+
+    return (left_height > right_height) ? left_height : right_height;
+}
+
 
 /* - Test - */
 
@@ -275,14 +358,64 @@ int main(void)
 {
     bst_t bst = { 0 };
 
+
+#ifdef TEST_MIN_MAX_HEIGHT
+    printf("\n<------------------------------------------------------\n");
+    printf("[ TEST ]: min, max, height (before insertion)\n\n");
+
+    printf("\n[height]: %zd\n", bst_findheight(&bst));
+
+    bnode_t* minnode = NULL;
+    bnode_t* maxnode = NULL;
+
+    printf("[min]: ");
+    if ((minnode = bst_findmin(&bst))) {
+        printf("%d\n", minnode->value);
+    } else {
+        printf("tree is empty\n");
+    }
+
+    printf("[max]: ");
+    if ((maxnode = bst_findmax(&bst))) {
+        printf("%d\n", maxnode->value);
+    } else {
+        printf("tree is empty\n");
+    }
+
+    printf(">------------------------------------------------------\n\n");
+#endif
+
+    /* Insertion */
 #define VALUES_SIZE 15
     T values[VALUES_SIZE]
         = { 20, 10, 5, 2, 7, 15, 13, 17, 30, 25, 23, 28, 35, 33, 38 };
-
-    /* Insertion */
     for (size_t i = 0; i < VALUES_SIZE; i++) {
         bst_insert(&bst, values[i]);
     }
+
+
+#ifdef TEST_MIN_MAX_HEIGHT
+    printf("\n<------------------------------------------------------\n");
+    printf("[ TEST ]: min, max, height (after insertion)\n\n");
+
+    printf("\n[height]: %zd\n", bst_findheight(&bst));
+
+    printf("[min]: ");
+    if ((minnode = bst_findmin(&bst))) {
+        printf("%d\n", minnode->value);
+    } else {
+        printf("tree is empty\n");
+    }
+
+    printf("[max]: ");
+    if ((maxnode = bst_findmax(&bst))) {
+        printf("%d\n", maxnode->value);
+    } else {
+        printf("tree is empty\n");
+    }
+
+    printf(">------------------------------------------------------\n\n");
+#endif
 
 
 #if 0
@@ -323,6 +456,31 @@ int main(void)
     printf("\nAfter deletion:\n");
     printf("size: %zu\n", bst.length);
 #endif
+
+
+#ifdef TEST_MIN_MAX_HEIGHT
+    printf("\n<------------------------------------------------------\n");
+    printf("[ TEST ]: min, max, height (after deletion)\n\n");
+
+    printf("\n[height]: %zd\n", bst_findheight(&bst));
+
+    printf("[min]: ");
+    if ((minnode = bst_findmin(&bst))) {
+        printf("%d\n", minnode->value);
+    } else {
+        printf("tree is empty\n");
+    }
+
+    printf("[max]: ");
+    if ((maxnode = bst_findmax(&bst))) {
+        printf("%d\n", maxnode->value);
+    } else {
+        printf("tree is empty\n");
+    }
+
+    printf(">------------------------------------------------------\n\n");
+#endif
+
 
     return 0;
 }
