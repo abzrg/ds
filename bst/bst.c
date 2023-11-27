@@ -21,14 +21,14 @@ typedef struct _bst {
     size_t length;
 } bst_t;
 
-typedef bnode_t** bsst_t;
+typedef bnode_t* bsst_t;
 
 static bnode_t* bnode_create(T value);
-static ssize_t bst_insertleaf(bsst_t subtree, T value);
-static ssize_t bst_insertsubtree(bsst_t subtree, T value);
-static bnode_t* bst_maxsubtree(bsst_t subtree);
-static ssize_t bst_delsubtree(bsst_t subtree, T value);
-static bnode_t* bst_findsubtree(bsst_t subtree, T value);
+static ssize_t bst_insertleaf(bsst_t* subtree, T value);
+static ssize_t bst_insertsubtree(bsst_t* subtree, T value);
+static bnode_t* bst_maxsubtree(bsst_t* subtree);
+static ssize_t bst_delsubtree(bsst_t* subtree, T value);
+static bnode_t* bst_findsubtree(bsst_t* subtree, T value);
 
 ssize_t bst_insert(bst_t* tree, T value);
 ssize_t bst_del(bst_t* tree, T value);
@@ -64,7 +64,7 @@ static bnode_t* bnode_create(T value)
 
     Returns: 1 on success, 0 on failure
 */
-static ssize_t bst_insertleaf(bsst_t subtree, T value)
+static ssize_t bst_insertleaf(bsst_t* subtree, T value)
 {
     assert(*subtree == NULL);
     *subtree = bnode_create(value);
@@ -83,7 +83,7 @@ static ssize_t bst_insertleaf(bsst_t subtree, T value)
 
     Returns: 1 on success, 0 on failure
 */
-static ssize_t bst_insertsubtree(bsst_t subtree, T value)
+static ssize_t bst_insertsubtree(bsst_t* subtree, T value)
 {
     if (*subtree == NULL) {
         return bst_insertleaf(subtree, value);
@@ -143,11 +143,11 @@ ssize_t bst_insert(bst_t* tree, T value)
 
     Returns: ptr to the max node
 */
-static bnode_t* bst_maxsubtree(bsst_t subtree)
+static bnode_t* bst_maxsubtree(bsst_t* subtree)
 {
     assert(subtree != NULL && "NULL subtree has been passed.");
 
-    bsst_t tmp = subtree;
+    bsst_t* tmp = subtree;
     while (*tmp != NULL && (*tmp)->right != NULL) {
         tmp = &((*tmp)->right);
     }
@@ -163,7 +163,7 @@ static bnode_t* bst_maxsubtree(bsst_t subtree)
 
     Returns: 1 on success, 0 on failure
 */
-static ssize_t bst_delsubtree(bsst_t subtree, T value)
+static ssize_t bst_delsubtree(bsst_t* subtree, T value)
 {
     assert(subtree != NULL && "NULL subtree passed.");
 
@@ -242,7 +242,7 @@ ssize_t bst_del(bst_t* tree, T value)
     return ok;
 }
 
-static bnode_t* bst_findsubtree(bsst_t subtree, T value)
+static bnode_t* bst_findsubtree(bsst_t* subtree, T value)
 {
     // Did not found it
     if (*subtree == NULL) {
