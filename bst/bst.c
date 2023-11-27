@@ -7,8 +7,10 @@
 
 /* - API - */
 
+/// @brief type of the data (integer types or floats).
 typedef int T;
 
+/// @brief binary node containing a value and pointer to left and right subtrees.
 typedef struct _bnode bnode_t;
 struct _bnode {
     T value;
@@ -16,35 +18,74 @@ struct _bnode {
     bnode_t* right;
 };
 
+/// @brief binary search tree containing a length and a pointer to root.
 typedef struct _bst {
     bnode_t* root;
     size_t length;
 } bst_t;
 
+/// @brief pointer to a node as a subtree (binary-search-sub-tree-type).
+/// @note we have to use double pointer to be able to not only change the underlying subtree but the pointer (member of parent) itself.
+/// @note in the recursive functions, a pointer to a subtree (bsst_t*) will be passed.
 typedef bnode_t* bsst_t;
 
+/// @brief create a new zero initialized node (mallocs one node).
+/// @param value value of the node
+/// @return pointer to node
 static bnode_t* bnode_create(T value);
+
+/// @brief insert a node into a leaf node/subtree.
+/// @param subtree pointer to subtree
+/// @param value value of the node
+/// @return 1 on success, 0 on failure
 static ssize_t bst_insertleaf(bsst_t* subtree, T value);
+
+/// @brief insert a node into a subtree (recursive).
+/// @param subtree pointer to subtree
+/// @param value value of the node
+/// @return 1 on success, 0 on failure
 static ssize_t bst_insertsubtree(bsst_t* subtree, T value);
+
+/// @brief find maximum node in a subtree.
+/// @param subtree address of a subtree
+/// @return pointer to the maximum node
+/// @note the passed subtree pointer should not be NULL
 static bnode_t* bst_maxsubtree(bsst_t* subtree);
+
+/// @brief remove a node from a subtree (recursive).
+/// @param subtree address of subtree
+/// @param value value of node
+/// @return 1 on success, 0 on failure
 static ssize_t bst_delsubtree(bsst_t* subtree, T value);
+
+/// @brief find the node with the value `value` in the subtree.
+/// @param subtree address of subtree
+/// @param value query value
+/// @return pointer to node or NULL if not found
 static bnode_t* bst_findsubtree(bsst_t* subtree, T value);
 
+/// @brief insert a node into tree.
+/// @param tree address of tree
+/// @param value value of node
+/// @return 1 on success, 0 on failure
 ssize_t bst_insert(bst_t* tree, T value);
+
+/// @brief remove a node from tree.
+/// @param tree address of tree
+/// @param value value of node
+/// @return 1 on success, 0 on failure
 ssize_t bst_del(bst_t* tree, T value);
 
+/// @brief find a node with the value of `value`.
+/// @param tree address of tree
+/// @param value query value
+/// @return pointer to node or NULL if not found
 bnode_t* bst_find(bst_t* tree, T value);
+
 
 /* - Implementation - */
 
 
-/*
-    Creates a initialized BinaryNode on the heap
-
-    @value: the value that eventually resides in the node
-
-    Returns: ptr to the allocated node on the heap
-*/
 static bnode_t* bnode_create(T value)
 {
     bnode_t* bn = malloc(sizeof(*bn));
@@ -56,14 +97,6 @@ static bnode_t* bnode_create(T value)
     return bn;
 }
 
-/*
-    Inserts a node into an empty (leaf) subtree
-
-    @subtree: pointer to the subtree (pointer to a pointer to a node)
-    @value: value of the node to possibly be inserted
-
-    Returns: 1 on success, 0 on failure
-*/
 static ssize_t bst_insertleaf(bsst_t* subtree, T value)
 {
     assert(*subtree == NULL);
@@ -71,18 +104,6 @@ static ssize_t bst_insertleaf(bsst_t* subtree, T value)
     return 1;
 }
 
-/*
-    Inserts a node to one of the left or right subtrees (recursively).
-    It recurses until it reaches a subtree that is NULL (a leaf).
-
-    @subtree: pointer to the subtree (pointer to a pointer to a node)
-        - note that we have to use double pointer, otherwise the address of the
-        node the subtree points to will be passed. However, we need the address
-        to the subtree node itself.
-    @value: value of the node to possibly be inserted
-
-    Returns: 1 on success, 0 on failure
-*/
 static ssize_t bst_insertsubtree(bsst_t* subtree, T value)
 {
     if (*subtree == NULL) {
@@ -100,14 +121,6 @@ static ssize_t bst_insertsubtree(bsst_t* subtree, T value)
     }
 }
 
-/*
-    Insert a node with a specific value into the tree
-
-    @tree: the tree into which we insert a new node
-    @value: value of the node to be inserted
-
-    Returns: 1 on success, 0 on failure
-*/
 ssize_t bst_insert(bst_t* tree, T value)
 {
     // No node in the tree
@@ -135,14 +148,6 @@ ssize_t bst_insert(bst_t* tree, T value)
     return ok;
 }
 
-/*
-    Finds the maximum node in the given subtree
-
-    @subtree: the subtree node to which the max node reside (which is the right
-    most node)
-
-    Returns: ptr to the max node
-*/
 static bnode_t* bst_maxsubtree(bsst_t* subtree)
 {
     assert(subtree != NULL && "NULL subtree has been passed.");
@@ -155,14 +160,6 @@ static bnode_t* bst_maxsubtree(bsst_t* subtree)
     return *tmp;
 }
 
-/*
-    Removes a node in a subtree that has a certain value
-
-    @subtree: the subtree node in which the value to be removed may reside
-    @value: the node with this value will be removed in the subtree (if exists)
-
-    Returns: 1 on success, 0 on failure
-*/
 static ssize_t bst_delsubtree(bsst_t* subtree, T value)
 {
     assert(subtree != NULL && "NULL subtree passed.");
@@ -218,14 +215,6 @@ static ssize_t bst_delsubtree(bsst_t* subtree, T value)
 }
 
 
-/*
-    Removes a node in a tree
-
-    @tree: the address of the tree
-    @value: the value of the node to be removed
-
-    Returns: 1 on success, 0 on failure
-*/
 ssize_t bst_del(bst_t* tree, T value)
 {
     // No node in the tree
