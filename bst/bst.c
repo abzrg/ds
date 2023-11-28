@@ -11,7 +11,8 @@
 /// @brief type of the data (integer types or floats).
 typedef int T;
 
-/// @brief binary node containing a value and pointer to left and right subtrees.
+/// @brief binary node containing a value and pointer to left and right
+/// subtrees.
 typedef struct _bnode bnode_t;
 struct _bnode {
     T value;
@@ -26,8 +27,12 @@ typedef struct _bst {
 } bst_t;
 
 /// @brief pointer to a node as a subtree (binary-search-sub-tree-type).
-/// @note we have to use double pointer to be able to not only change the underlying subtree but the pointer (member of parent) itself.
-/// @note in the recursive functions, a pointer to a subtree (bsst_t*) will be passed.
+///
+/// @note we have to use double pointer to be able to not only change the
+/// underlying subtree but the pointer (member of parent) itself.
+///
+/// @note in the recursive functions, a pointer to a subtree (bsst_t*) will be
+/// passed.
 typedef bnode_t* bsst_t;
 
 /// @brief create a new zero initialized node (mallocs one node).
@@ -434,7 +439,8 @@ int main(void)
     for (size_t i = 0; i < VALUES_SIZE; i++) {
         if ((foundval = bst_find(&bst, values[i]))) {
             if (values[i] == foundval->value) {
-                printf("%02zu: finding %2d -> found %2d, (OK)\n", i, values[i], foundval->value);
+                printf("%02zu: finding %2d -> found %2d, (OK)\n", i, values[i],
+                       foundval->value);
             }
         } else {
             printf("Not found!\n");
