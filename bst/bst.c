@@ -5,7 +5,9 @@
 #include <sys/types.h> // ssize_t
 
 // #define TEST_MIN_MAX_HEIGHT
-#define TEST_TRAVERSAL
+// #define TEST_TRAVERSAL
+#define TEST_CLEAR
+
 
 /* - API - */
 
@@ -132,6 +134,10 @@ void bst_inorder(bst_t* tree);
 /// @brief print tree inorder.
 /// @param tree adress of tree
 void bst_postorder(bst_t* tree);
+
+/// @brief remove (and deallocate) all nodes in tree
+/// @param tree address of tree
+void bst_clear(bst_t* tree);
 
 
 /* - Implementation - */
@@ -467,6 +473,38 @@ void bst_postorder(bst_t* tree)
     printf("\n");
 }
 
+static void bst_clearsubtree(bsst_t* subtree) {
+    // If subtree is empty
+    if (*subtree == NULL) {
+        return;
+    }
+
+    bst_clearsubtree(&(*subtree)->left);
+    bst_clearsubtree(&(*subtree)->right);
+
+    free(*subtree);
+    *subtree = NULL;
+}
+
+void bst_clear(bst_t* tree)
+{
+    assert(tree != NULL && "Tree pointer is NULL");
+
+    bnode_t* root = tree->root;
+
+    // Tree is empty
+    if (root == NULL) {
+        return;
+    }
+
+    bst_clearsubtree(&root->left);
+    bst_clearsubtree(&root->right);
+    free(root);
+
+    tree->root = NULL;
+    tree->length = 0;
+}
+
 
 /* - Test - */
 
@@ -571,7 +609,7 @@ int main(void)
 #endif
 
 
-#if 1
+#if 0
     /* Deletion */
     for (size_t i = 0; i < VALUES_SIZE; i++) {
         bst_del(&bst, values[i]);
@@ -580,6 +618,15 @@ int main(void)
     // printf("%d\n", bst.root->value);
     printf("\nAfter deletion:\n");
     printf("size: %zu\n", bst.length);
+#endif
+
+
+#ifdef TEST_CLEAR
+    bst_clear(&bst);
+    //(void)bst.root->left; // runtime error: member access within null pointer of type 'bnode_t'
+    printf("Address of root node after clearance: %p\n", (void*)bst.root); // 0x0
+    printf("Length of tree after clearance: %zu\n", bst.length); // 0
+    printf("Height of tree after clearance: %zd\n", bst_findheight(&bst)); // -1
 #endif
 
 
