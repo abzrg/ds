@@ -4,7 +4,8 @@
 #include <string.h>
 #include <sys/types.h> // ssize_t
 
-#define TEST_MIN_MAX_HEIGHT
+// #define TEST_MIN_MAX_HEIGHT
+#define TEST_TRAVERSAL
 
 /* - API - */
 
@@ -75,6 +76,18 @@ static bnode_t* bst_findsubtree(bsst_t* subtree, T value);
 /// @return height of subtree, 0 if *subtree is NULL
 static ssize_t bst_findsubtreeheight(bsst_t* subtree);
 
+/// @brief print subtree pre order
+/// @param subtree adrees of subtree
+static void bst_walk_preorder(bsst_t* subtree);
+
+/// @brief print subtree in order
+/// @param subtree address of subtree
+static void bst_walk_inorder(bsst_t* subtree);
+
+/// @brief print subtree post order
+/// @param subtree address of subtree
+static void bst_walk_postorder(bsst_t* subtree);
+
 /// @brief insert a node into tree.
 /// @param tree address of tree
 /// @param value value of node
@@ -107,6 +120,18 @@ bnode_t* bst_findmax(bst_t* tree);
 /// @param tree addreess of tree
 /// @return height of tree, -1 if tree is empty
 ssize_t bst_findheight(bst_t* tree);
+
+/// @brief print tree preorder.
+/// @param tree adress of tree
+void bst_preorder(bst_t* tree);
+
+/// @brief print tree inorder.
+/// @param tree adress of tree
+void bst_inorder(bst_t* tree);
+
+/// @brief print tree inorder.
+/// @param tree adress of tree
+void bst_postorder(bst_t* tree);
 
 
 /* - Implementation - */
@@ -355,6 +380,93 @@ ssize_t bst_findheight(bst_t* tree)
     return (left_height > right_height) ? left_height : right_height;
 }
 
+static void bst_walk_preorder(bsst_t* subtree)
+{
+    if (*subtree == NULL) {
+        return;
+    }
+
+    printf("%d, ", (*subtree)->value); // Visit Node
+    bst_walk_preorder(&(*subtree)->left); // Recurse Left
+    bst_walk_preorder(&(*subtree)->right); // Recurse Right
+}
+
+void bst_preorder(bst_t* tree)
+{
+    assert(tree != NULL && "Tree pointer is NULL");
+
+    bnode_t* root = tree->root;
+
+    // Tree is empty
+    if (root == NULL) {
+        return;
+    }
+
+    printf("%d, ", root->value); // Visit Node
+    bst_walk_preorder(&root->left); // Recurse Left
+    bst_walk_preorder(&root->right); // Recurse Right
+
+    printf("\n");
+}
+
+static void bst_walk_inorder(bsst_t* subtree)
+{
+    if (*subtree == NULL) {
+        return;
+    }
+
+    bst_walk_inorder(&(*subtree)->left); // Recurse Left
+    printf("%d, ", (*subtree)->value);  // Visit Node
+    bst_walk_inorder(&(*subtree)->right); // Recurse Right
+}
+
+void bst_inorder(bst_t* tree)
+{
+    assert(tree != NULL && "Tree pointer is NULL");
+
+    bnode_t* root = tree->root;
+
+    // Tree is empty
+    if (root == NULL) {
+        return;
+    }
+
+    bst_walk_inorder(&root->left); // Recurse Left
+    printf("%d, ", root->value); // Visit Node
+    bst_walk_inorder(&root->right); // Recurse Right
+
+    printf("\n");
+}
+
+static void bst_walk_postorder(bsst_t* subtree)
+{
+    if (*subtree == NULL) {
+        return;
+    }
+
+    bst_walk_postorder(&(*subtree)->left); // Recurse Left
+    bst_walk_postorder(&(*subtree)->right); // Recurse Right
+    printf("%d, ", (*subtree)->value);  // Visit Node
+}
+
+void bst_postorder(bst_t* tree)
+{
+    assert(tree != NULL && "Tree pointer is NULL");
+
+    bnode_t* root = tree->root;
+
+    // Tree is empty
+    if (root == NULL) {
+        return;
+    }
+
+    bst_walk_postorder(&root->left); // Recurse Left
+    bst_walk_postorder(&root->right); // Recurse Right
+    printf("%d, ", root->value); // Visit Node
+
+    printf("\n");
+}
+
 
 /* - Test - */
 
@@ -450,6 +562,13 @@ int main(void)
     if (!(foundval = bst_find(&bst, 0))) {
         printf("Not found!\n");
     }
+
+
+#ifdef TEST_TRAVERSAL
+    bst_preorder(&bst);
+    bst_inorder(&bst);
+    bst_postorder(&bst);
+#endif
 
 
 #if 1
